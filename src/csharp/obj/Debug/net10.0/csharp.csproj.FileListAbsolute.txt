@@ -1,0 +1,15 @@
+/workspaces/2026-2-Bimestre-1-Atividade-3/src/csharp/obj/Debug/net10.0/csharp.GeneratedMSBuildEditorConfig.editorconfig
+/workspaces/2026-2-Bimestre-1-Atividade-3/src/csharp/obj/Debug/net10.0/csharp.AssemblyInfoInputs.cache
+/workspaces/2026-2-Bimestre-1-Atividade-3/src/csharp/obj/Debug/net10.0/csharp.AssemblyInfo.cs
+/workspaces/2026-2-Bimestre-1-Atividade-3/src/csharp/obj/Debug/net10.0/csharp.csproj.CoreCompileInputs.cache
+/workspaces/2026-2-Bimestre-1-Atividade-3/src/csharp/obj/Debug/net10.0/csharp.sourcelink.json
+/workspaces/2026-2-Bimestre-1-Atividade-3/src/csharp/bin/Debug/net10.0/csharp
+/workspaces/2026-2-Bimestre-1-Atividade-3/src/csharp/bin/Debug/net10.0/csharp.deps.json
+/workspaces/2026-2-Bimestre-1-Atividade-3/src/csharp/bin/Debug/net10.0/csharp.runtimeconfig.json
+/workspaces/2026-2-Bimestre-1-Atividade-3/src/csharp/bin/Debug/net10.0/csharp.dll
+/workspaces/2026-2-Bimestre-1-Atividade-3/src/csharp/bin/Debug/net10.0/csharp.pdb
+/workspaces/2026-2-Bimestre-1-Atividade-3/src/csharp/obj/Debug/net10.0/csharp.dll
+/workspaces/2026-2-Bimestre-1-Atividade-3/src/csharp/obj/Debug/net10.0/refint/csharp.dll
+/workspaces/2026-2-Bimestre-1-Atividade-3/src/csharp/obj/Debug/net10.0/csharp.pdb
+/workspaces/2026-2-Bimestre-1-Atividade-3/src/csharp/obj/Debug/net10.0/csharp.genruntimeconfig.cache
+/workspaces/2026-2-Bimestre-1-Atividade-3/src/csharp/obj/Debug/net10.0/ref/csharp.dll
