@@ -43,6 +43,8 @@ namespace AtividadeComunicação
 
             threadProdutor.Start();
             threadConsumidor.Start();
+            threadProdutor.Join();
+            threadConsumidor.Join();
 
             Console.WriteLine("finalizou");
         }
