@@ -12,11 +12,11 @@ O grupo de trabalho foi formado por Álvaro Luiz Barbalho de Souza Filho<br>Paul
 
 ### Informações gerais
 
-A comunicação entre tarefas tem como objetivo permitir que diferentes fluxos de execução troquem dados e coordenem suas atividades durante a execução de um programa. Neste trabalho, foi utilizado o modelo produtor-consumidor, no qual uma tarefa é responsável por produzir os dados e outra por consumi-los. 
+A comunicação entre tarefas tem como objetivo permitir que diferentes fluxos de execução troquem dados e coordenem suas atividades durante a execução de um programa. Neste trabalho, foram abordadas duas formas de comunicação: o compartilhamento de dados entre threads pertencentes ao mesmo processo, utilizando o modelo produtor-consumidor, e a comunicação entre processos por meio de sockets TCP.
 
-Para a implementação foi utilizada a linguagem C#, com execução do projeto em um container Docker utilizando a imagem do .NET SDK 10. O Docker foi utilizado para fornecer um ambiente isolado e reproduzível para compilação e execução do programa.
+Para a implementação foi utilizada a linguagem C#, com execução do projeto em containers Docker utilizando a imagem do .NET SDK 10. O Docker foi utilizado para fornecer um ambiente isolado e reproduzível para compilação e execução dos programas.
 
-A configuração utilizada para execução foi baseada em um arquivo `Dockerfile`, responsável por copiar o projeto C# para o container, realizar sua compilação e executar a aplicação.
+A configuração utilizada para execução foi baseada em um arquivo `Dockerfile`, responsável por copiar o projeto C# para o container, realizar sua compilação e executar a aplicação. O projeto também passou a contar com um menu interativo, permitindo selecionar as diferentes implementações desenvolvidas.
 
 ### Comunicação entre tarefas com linhas de execução no mesmo processo
 
@@ -92,27 +92,74 @@ A aplicação foi executada utilizando Docker. Foi criado um arquivo `Dockerfile
 A imagem Docker da aplicação foi construída com o comando:
 
 ```bash
-docker build -t atividade-so .
+docker build -t atividade3 .
 ```
 Após a construção da imagem, a aplicação foi executada com o comando:
 
 ```bash
-docker run atividade-so
+docker run -it --rm atividade3
 ```
+Para realizar os testes de comunicação utilizando sockets TCP, foram utilizadas duas sessões de terminal conectadas ao mesmo container Docker. Em uma delas, foi iniciado o servidor, responsável por aguardar as conexões, enquanto na outra foi executado o cliente, responsável por estabelecer a conexão e realizar a troca de mensagens.
 
+Esse procedimento foi utilizado nas implementações Básico, Echo e Chat, permitindo observar o envio e recebimento de dados entre os processos, além do encerramento das conexões.
 
 ### Comunicação entre tarefas em processos diferentes no mesmo computador
 
-Implementação ainda não realizada nesta etapa da atividade
+Nesta etapa, foram implementados exemplos de comunicação entre processos utilizando sockets TCP na linguagem C#. Diferentemente da comunicação entre threads, que compartilham a memória de um mesmo processo, os sockets permitem a troca de informações entre aplicações por meio de conexões de rede.
+
+Foram desenvolvidas três modalidades de comunicação: Básico, Echo e Chat. Todas utilizaram o endereço de loopback 127.0.0.1 e a porta 5000. Os testes foram realizados no ambiente Docker, utilizando dois processos independentes para representar o cliente e o servidor.
+
+#### Servidor e Cliente Básico
+
+A primeira implementação teve como objetivo estabelecer uma conexão TCP e realizar o envio de uma mensagem do servidor para o cliente.
+
+O servidor utiliza a classe `TcpListener` para aguardar conexões na porta 5000. Quando um cliente estabelece uma conexão, o servidor envia a mensagem "Bem-vindo ao servidor!", utilizando um `NetworkStream`.
+
+O cliente, por sua vez, utiliza a classe `TcpClient` para estabelecer a conexão, receber os dados e convertê-los em texto utilizando a codificação UTF-8.
+
+Durante a execução no Docker, foi possível observar que o servidor recebeu a conexão e que o cliente apresentou corretamente a mensagem enviada. Após a comunicação, a conexão foi encerrada.
+
+#### Servidor e Cliente Echo
+
+A segunda implementação utilizou o modelo Echo, no qual o servidor recebe uma mensagem do cliente e devolve os mesmos dados.
+
+Diferentemente da implementação básica, a comunicação ocorre nos dois sentidos: o cliente envia uma mensagem e aguarda a resposta do servidor.
+
+Para realizar a comunicação, foram utilizados os métodos Read() e Write() da classe NetworkStream, responsáveis pela leitura e escrita dos dados transmitidos.
+
+Durante o teste, o cliente enviou a mensagem "ola", que foi recebida pelo servidor e devolvida sem alterações. O resultado demonstrou o funcionamento da comunicação bidirecional utilizando sockets TCP.
+
+#### Servidor e Cliente Chat
+
+A terceira implementação teve como objetivo permitir a troca de várias mensagens entre cliente e servidor durante uma mesma conexão TCP.
+
+Para isso, foram utilizados laços de repetição `while`, que mantêm a comunicação ativa enquanto os participantes não solicitam seu encerramento.
+
+O funcionamento ocorre de forma alternada: o cliente envia uma mensagem, o servidor recebe e digita uma resposta, que é enviada de volta ao cliente. Esse processo continua até que um dos participantes digite o comando `sair`.
+
+Durante a execução no Docker, foram realizadas trocas de mensagens entre os dois programas. O cliente enviou inicialmente "olá servidor", recebendo como resposta "olá cliente". Em seguida, enviou "Tudo funcionando?", recebendo a resposta "Sim, comunicação funcionando".
+
+Por fim, o cliente enviou o comando `sair`, que foi reconhecido pelo servidor. A conexão foi encerrada e ambos os programas finalizaram normalmente.
+
+Os resultados demonstraram a possibilidade de manter uma conexão TCP ativa para realizar múltiplas trocas de mensagens entre processos.
 
 ### Comunicação entre tarefas em processos diferentes em computadores diferentes
 
-Implementação ainda não realizada nesta etapa da atividade
 
-## Considerações finais da primeira parte
+As implementações desenvolvidas utilizaram o endereço de loopback `127.0.0.1`, permitindo realizar os testes de comunicação entre cliente e servidor no mesmo ambiente de rede.
 
-A implementação desenvolvida permitiu executar e testar a comunicação entre tarefas utilizando linhas de execução no mesmo processo. O código foi executado em um container Docker e foi possível observar o funcionamento das threads produtora e consumidora e o compartilhamento dos dados entre elas.
+Embora os sockets TCP também permitam estabelecer comunicação entre computadores diferentes, essa modalidade não foi testada nesta etapa da atividade.
 
-Durante a atividade foi possível compreender melhor a diferença entre execução sequencial e concorrente, além do funcionamento dos métodos `Start()` e `Join()`. O uso de `Join()` permitiu fazer com que a thread principal aguardasse o término das threads produtora e consumidora antes de finalizar sua execução.
+Para realizar esse tipo de comunicação, seria necessário configurar o servidor para aceitar conexões por uma interface de rede acessível a outros computadores, além de utilizar o endereço IP correspondente no cliente e garantir a conectividade entre os ambientes.
 
-Também foi possível aprender na prática o processo de configuração e utilização do Docker para executar uma aplicação C#. 
+## Considerações finais 
+
+A atividade permitiu implementar e testar diferentes formas de comunicação entre tarefas utilizando a linguagem C# e o ambiente Docker.
+
+Na primeira parte, foi explorada a comunicação entre threads pertencentes ao mesmo processo, utilizando o modelo produtor-consumidor. Essa implementação permitiu observar o compartilhamento de dados e compreender melhor o funcionamento dos métodos `Start()` e `Join()`.
+
+Na segunda parte, foram desenvolvidas implementações de comunicação entre processos utilizando sockets TCP, por meio dos exemplos Básico, Echo e Chat. Os testes permitiram observar o estabelecimento de conexões, o envio e recebimento de mensagens e o encerramento da comunicação.
+
+A implementação do Chat também demonstrou como uma conexão pode ser mantida durante várias trocas de mensagens, permitindo uma interação entre cliente e servidor.
+
+Além dos conceitos de comunicação entre tarefas, a atividade contribuiu para o aprendizado sobre a utilização do Docker como ambiente de execução e sobre a organização de aplicações C# que utilizam recursos de rede.
