@@ -1,4 +1,5 @@
-﻿using System;
+﻿
+using System;
 
 namespace AtividadeComunicação
 {
@@ -6,12 +7,21 @@ namespace AtividadeComunicação
     {
         static void Main(string[] args)
         {
+            // Execução direta pelo Docker Compose
+            if (args.Length > 0)
+            {
+                ExecutarOpcao(args[0]);
+                return;
+            }
+
+            // Execução interativa pelo terminal
             while (true)
             {
                 Console.Clear();
-                Console.WriteLine("==================================================");
-                Console.WriteLine("   PAINEL DE EXECUÇÃO - ATIVIDADE DE COMUNICAÇÃO   ");
-                Console.WriteLine("==================================================");
+
+                Console.WriteLine("==============================================");
+                Console.WriteLine(" PAINEL DE EXECUÇÃO - ATIVIDADE DE COMUNICAÇÃO");
+                Console.WriteLine("==============================================");
                 Console.WriteLine("1 - Executar Programação Sequencial");
                 Console.WriteLine("2 - Executar Produtor / Consumidor");
                 Console.WriteLine("3 - Executar Servidor Básico (Sockets)");
@@ -21,63 +31,65 @@ namespace AtividadeComunicação
                 Console.WriteLine("7 - Executar Servidor Chat (Sockets)");
                 Console.WriteLine("8 - Executar Cliente Chat (Sockets)");
                 Console.WriteLine("0 - Sair");
-                Console.WriteLine("==================================================");
+                Console.WriteLine("==============================================");
+
                 Console.Write("Digite a opção desejada: ");
+                string? opcao = Console.ReadLine();
 
-                string opcao = Console.ReadLine();
+                if (opcao == null || opcao == "0")
+                    return;
 
-                Console.WriteLine("\n--------------------------------------------------");
-                switch (opcao)
-                {
-                    case "1":
-                        Console.WriteLine("=== EXECUTANDO SEQUENCIAL ===\n");
-                        Sequencial.Principal();
-                        Pausar();
-                        break;
-                    case "2":
-                        Console.WriteLine("=== EXECUTANDO PRODUTOR / CONSUMIDOR ===\n");
-                        ProdutorConsumidor.Principal();
-                        Pausar();
-                        break;
-                    case "3":
-                        ServidorBasico.Principal();
-                        Pausar();
-                        break;
-                    case "4":
-                        ClienteBasico.Principal();
-                        Pausar();
-                        break;
-                    case "5":
-                        ServidorEcho.Principal();
-                        Pausar();
-                        break;
-                    case "6":
-                        ClienteEcho.Principal();
-                        Pausar();
-                        break;
-                    case "7":
-                        ServidorChat.Principal();
-                        Pausar();
-                        break;
-                    case "8":
-                        ClienteChat.Principal();
-                        Pausar();
-                        break;
-                    case "0":
-                        Console.WriteLine("Saindo do programa...");
-                        return;
-                    default:
-                        Console.WriteLine("Opção inválida! Tente novamente.");
-                        Pausar();
-                        break;
-                }
+                ExecutarOpcao(opcao);
+
+                Console.WriteLine("\nPressione ENTER para voltar ao menu...");
+                if (Console.ReadLine() == null)
+                    return;
             }
         }
 
-        static void Pausar()
+        static void ExecutarOpcao(string opcao)
         {
-            Console.WriteLine("\nPressione ENTER para voltar ao menu principal...");
-            Console.ReadLine();
+            switch (opcao)
+            {
+                case "1":
+                    Sequencial.Principal();
+                    break;
+
+                case "2":
+                    ProdutorConsumidor.Principal();
+                    break;
+
+                case "3":
+                    ServidorBasico.Principal();
+                    break;
+
+                case "4":
+                    ClienteBasico.Principal();
+                    break;
+
+                case "5":
+                    ServidorEcho.Principal();
+                    break;
+
+                case "6":
+                    ClienteEcho.Principal();
+                    break;
+
+                case "7":
+                    ServidorChat.Principal();
+                    break;
+
+                case "8":
+                    ClienteChat.Principal();
+                    break;
+
+                case "0":
+                    break;
+
+                default:
+                    Console.WriteLine("Opção inválida!");
+                    break;
+            }
         }
     }
 }

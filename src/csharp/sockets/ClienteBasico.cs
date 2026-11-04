@@ -1,3 +1,4 @@
+
 using System;
 using System.Net.Sockets;
 using System.Text;
@@ -8,31 +9,47 @@ namespace AtividadeComunicação
     {
         public static void Principal()
         {
-            string ipServidor = "127.0.0.1";
+            // Obter o endereço do servidor pelo ambiente
+            // Se não existir, utilizar localhost
+            string ipServidor =
+                Environment.GetEnvironmentVariable("SERVER_HOST")
+                ?? "127.0.0.1";
+
             int porta = 5000;
 
             try
             {
                 // Criar conexão com o servidor
-                TcpClient cliente = new TcpClient(ipServidor, porta);
-                Console.WriteLine("Conectado ao servidor!");
-
-                // Receber mensagem
-                using (NetworkStream stream = cliente.GetStream())
+                using (TcpClient cliente = new TcpClient(ipServidor, porta))
                 {
-                    byte[] buffer = new byte[1024];
-                    int bytesLidos = stream.Read(buffer, 0, buffer.Length);
-                    string mensagem = Encoding.UTF8.GetString(buffer, 0, bytesLidos);
+                    Console.WriteLine("Conectado ao servidor!");
 
-                    Console.WriteLine($"Recebido: {mensagem}");
+                    // Obter o fluxo de comunicação TCP
+                    using (NetworkStream stream = cliente.GetStream())
+                    {
+                        // Preparar buffer para receber dados
+                        byte[] buffer = new byte[1024];
+
+                        // Receber mensagem do servidor
+                        int bytesLidos = stream.Read(
+                            buffer, 0, buffer.Length
+                        );
+
+                        // Converter os bytes recebidos em texto
+                        string mensagem = Encoding.UTF8.GetString(
+                            buffer, 0, bytesLidos
+                        );
+
+                        // Exibir mensagem recebida
+                        Console.WriteLine($"Recebido: {mensagem}");
+                    }
                 }
-
-                // Fechar a conexão
-                cliente.Close();
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Erro no cliente: {ex.Message}");
+                Console.WriteLine(
+                    $"Erro no cliente: {ex.Message}"
+                );
             }
         }
     }

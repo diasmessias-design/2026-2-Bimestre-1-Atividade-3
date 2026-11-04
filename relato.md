@@ -2,17 +2,22 @@
 
 ## Introdução
 
-Este relato faz parte do processo avaliativo da disciplina de Sistemas Operacionais no curso superior em Análise e Desenvolvimento de Sistemas, ofertado pela Diretoria Acadêmica de Gestão e Tecnologia da Informação do Campus Natal-Central do Instituto Federal de Educação, Ciência e Tecnologia do Rio Grande do Norte.
+Este relato faz parte do processo avaliativo da disciplina de sistemas operacionas no curso superior em análise e desenvolvimento de sistemas, ofertado na Diretoria acadêmica de gestão e tecnologia da informação no campus natal-central do instituto federal de educação, ciência e tecnologia do rio grande do norte.
 
 Tem como objetivo principal relatar as implementações de comunicação entre tarefas na linguagem C#.
 
-O grupo de trabalho foi formado por Álvaro Luiz Barbalho de Souza Filho<br>Paulo Cesar Moreira da Silva<br>Pedro Messias Dias Neto
+O grupo de trabalho foi formado por Álvaro Luiz Barbalho de Souza Filho, Paulo Cesar Moreira da Silva, Pedro Messias Dias Neto.
 
 ## Comunicação entre tarefas em C#
 
 ### Informações gerais
 
-A comunicação entre tarefas tem como objetivo permitir que diferentes fluxos de execução troquem dados e coordenem suas atividades durante a execução de um programa. Neste trabalho, foram abordadas duas formas de comunicação: o compartilhamento de dados entre threads pertencentes ao mesmo processo, utilizando o modelo produtor-consumidor, e a comunicação entre processos por meio de sockets TCP.
+A comunicação entre tarefas tem como objetivo permitir que diferentes fluxos de execução troquem dados e coordenem suas atividades durante a execução de um programa. 
+
+Neste trabalho, foram abordadas três formas de comunicação: 
+- Comunicação entre tarefas com linhas de execução no mesmo processo;
+- Comunicação entre tarefas em processos diferentes no mesmo computador;
+- Comunicação entre tarefas em processos diferentes em computadores diferentes.
 
 Para a implementação foi utilizada a linguagem C#, com execução do projeto em containers Docker utilizando a imagem do .NET SDK 10. O Docker foi utilizado para fornecer um ambiente isolado e reproduzível para compilação e execução dos programas.
 
@@ -20,17 +25,11 @@ A configuração utilizada para execução foi baseada em um arquivo `Dockerfile
 
 ### Comunicação entre tarefas com linhas de execução no mesmo processo
 
-A implementação utiliza duas linhas de execução (threads) dentro do mesmo processo: uma thread produtora e uma thread consumidora. Ambas compartilham o vetor `dados`, que é utilizado para realizar a comunicação entre as tarefas.
+Neste cenário, foi implementado em C# um modelo de comunicação entre tarefas utilizando threads, que compartilham a mesma área de memória do processo.
 
-O método `ProduzirDados()` cria um vetor com 100 posições e o preenche com números pseudoaleatórios entre 0 e 110. O método `ConsumirDados()` acessa esse mesmo vetor e utiliza o método `Sum()` para calcular a soma dos valores produzidos.
-
-No método `Principal()`, são criadas duas instâncias da classe `Thread`. A primeira recebe o método `ProduzirDados` e a segunda recebe o método `ConsumirDados`.
-
-As chamadas `Start()` iniciam a execução das duas threads. Como elas pertencem ao mesmo processo, ambas possuem acesso ao vetor `dados`, permitindo o compartilhamento das informações produzidas.
-
-Após iniciar as threads, foram utilizadas chamadas ao método `Join()`. O `Join()` faz com que a thread que executa o método `Principal()` aguarde o término das threads produtora e consumidora antes de continuar. Dessa forma, a mensagem `finalizou` somente é exibida depois que ambas terminam sua execução.
-
-É importante observar que os dois `Join()` utilizados após os dois `Start()` garantem que o método `Principal()` aguarde o término das threads, mas não estabelecem, por si só, que a thread consumidora somente possa iniciar após a conclusão da thread produtora.
+- Uma tarefa produz 100 números aleatórios e os armazena em uma lista compartilhada.
+- Outra tarefa consome os números e calcula sua soma.
+- A sincronização garante que os dados sejam produzidos antes de serem consumidos.
 
 ```csharp
 using System;
@@ -87,71 +86,240 @@ namespace AtividadeComunicação
     }
 }
 ```
-A aplicação foi executada utilizando Docker. Foi criado um arquivo `Dockerfile` baseado na imagem do .NET SDK 10. O projeto C# foi copiado para o diretório `/app` do container e compilado utilizando `dotnet build`.
+### Execução e resultados
+O programa foi executado em um contêiner Docker, utilizando a opção de programação Produtor/Consumidor.
 
-A imagem Docker da aplicação foi construída com o comando:
+![alt text](image.png)
 
-```bash
-docker build -t atividade3 .
-```
-Após a construção da imagem, a aplicação foi executada com o comando:
-
-```bash
-docker run -it --rm atividade3
-```
-Para realizar os testes de comunicação utilizando sockets TCP, foram utilizadas duas sessões de terminal conectadas ao mesmo container Docker. Em uma delas, foi iniciado o servidor, responsável por aguardar as conexões, enquanto na outra foi executado o cliente, responsável por estabelecer a conexão e realizar a troca de mensagens.
-
-Esse procedimento foi utilizado nas implementações Básico, Echo e Chat, permitindo observar o envio e recebimento de dados entre os processos, além do encerramento das conexões.
-
+O teste demonstrou a comunicação entre tarefas no mesmo processo por meio de memória compartilhada, com sincronização para garantir a ordem correta de execução.
 ### Comunicação entre tarefas em processos diferentes no mesmo computador
 
 Nesta etapa, foram implementados exemplos de comunicação entre processos utilizando sockets TCP na linguagem C#. Diferentemente da comunicação entre threads, que compartilham a memória de um mesmo processo, os sockets permitem a troca de informações entre aplicações por meio de conexões de rede.
 
-Foram desenvolvidas três modalidades de comunicação: Básico, Echo e Chat. Todas utilizaram o endereço de loopback 127.0.0.1 e a porta 5000. Os testes foram realizados no ambiente Docker, utilizando dois processos independentes para representar o cliente e o servidor.
+Foram utilizado o seguinte exemplo:
+
+- Servidor/Cliente Básico: o servidor aguarda uma conexão e envia uma mensagem de boas-vindas ao cliente.
 
 #### Servidor e Cliente Básico
 
 A primeira implementação teve como objetivo estabelecer uma conexão TCP e realizar o envio de uma mensagem do servidor para o cliente.
 
-O servidor utiliza a classe `TcpListener` para aguardar conexões na porta 5000. Quando um cliente estabelece uma conexão, o servidor envia a mensagem "Bem-vindo ao servidor!", utilizando um `NetworkStream`.
+**Servidor Básico (`ServidorBasico.cs`)**
 
-O cliente, por sua vez, utiliza a classe `TcpClient` para estabelecer a conexão, receber os dados e convertê-los em texto utilizando a codificação UTF-8.
+```csharp
+using System;
+using System.Net;
+using System.Net.Sockets;
+using System.Text;
+
+namespace AtividadeComunicação
+{
+    public static class ServidorBasico
+    {
+        public static void Principal()
+        {
+            // Obter o endereço IP configurado no ambiente
+            // Se não existir, utilizar localhost
+            string ip = Environment.GetEnvironmentVariable("SERVER_HOST")
+                        ?? "127.0.0.1";
+
+            IPAddress enderecoIP = IPAddress.Parse(ip);
+            int porta = 5000;
+
+            // Criar o servidor TCP
+            TcpListener servidor = new TcpListener(enderecoIP, porta);
+
+            try
+            {
+                // Iniciar a escuta por conexões
+                servidor.Start();
+                Console.WriteLine(
+                    $"Servidor escutando em {enderecoIP}:{porta}"
+                );
+
+                // Aguardar conexão de um cliente
+                TcpClient conexao = servidor.AcceptTcpClient();
+
+                Console.WriteLine(
+                    $"Conexão estabelecida com {conexao.Client.RemoteEndPoint}"
+                );
+
+                // Preparar a mensagem
+                string mensagem = "Bem-vindo ao servidor!";
+                byte[] dados = Encoding.UTF8.GetBytes(mensagem);
+
+                // Enviar mensagem ao cliente
+                using (NetworkStream stream = conexao.GetStream())
+                {
+                    stream.Write(dados, 0, dados.Length);
+                }
+
+                // Fechar a conexão
+                conexao.Close();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(
+                    $"Erro no servidor: {ex.Message}"
+                );
+            }
+            finally
+            {
+                // Encerrar o servidor
+                servidor.Stop();
+                Console.WriteLine("Servidor encerrado");
+            }
+        }
+    }
+}
+```
+**Cliente Básico (`ClienteBasico.cs`)**
+```csharp
+using System;
+using System.Net.Sockets;
+using System.Text;
+
+namespace AtividadeComunicação
+{
+    public static class ClienteBasico
+    {
+        public static void Principal()
+        {
+            // Obter o endereço do servidor pelo ambiente
+            // Se não existir, utilizar localhost
+            string ipServidor =
+                Environment.GetEnvironmentVariable("SERVER_HOST")
+                ?? "127.0.0.1";
+
+            int porta = 5000;
+
+            try
+            {
+                // Criar conexão com o servidor
+                using (TcpClient cliente = new TcpClient(ipServidor, porta))
+                {
+                    Console.WriteLine("Conectado ao servidor!");
+
+                    // Obter o fluxo de comunicação TCP
+                    using (NetworkStream stream = cliente.GetStream())
+                    {
+                        // Preparar buffer para receber dados
+                        byte[] buffer = new byte[1024];
+
+                        // Receber mensagem do servidor
+                        int bytesLidos = stream.Read(
+                            buffer, 0, buffer.Length
+                        );
+
+                        // Converter os bytes recebidos em texto
+                        string mensagem = Encoding.UTF8.GetString(
+                            buffer, 0, bytesLidos
+                        );
+
+                        // Exibir mensagem recebida
+                        Console.WriteLine($"Recebido: {mensagem}");
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(
+                    $"Erro no cliente: {ex.Message}"
+                );
+            }
+        }
+    }
+}
+```
 
 Durante a execução no Docker, foi possível observar que o servidor recebeu a conexão e que o cliente apresentou corretamente a mensagem enviada. Após a comunicação, a conexão foi encerrada.
 
-#### Servidor e Cliente Echo
+### Execução e resultados
+Os testes foram realizados utilizando dois terminais, um para o servidor e outro para o cliente.
 
-A segunda implementação utilizou o modelo Echo, no qual o servidor recebe uma mensagem do cliente e devolve os mesmos dados.
+![alt text](image-1.png)    ![alt text](image-2.png)
 
-Diferentemente da implementação básica, a comunicação ocorre nos dois sentidos: o cliente envia uma mensagem e aguarda a resposta do servidor.
-
-Para realizar a comunicação, foram utilizados os métodos Read() e Write() da classe NetworkStream, responsáveis pela leitura e escrita dos dados transmitidos.
-
-Durante o teste, o cliente enviou a mensagem "ola", que foi recebida pelo servidor e devolvida sem alterações. O resultado demonstrou o funcionamento da comunicação bidirecional utilizando sockets TCP.
-
-#### Servidor e Cliente Chat
-
-A terceira implementação teve como objetivo permitir a troca de várias mensagens entre cliente e servidor durante uma mesma conexão TCP.
-
-Para isso, foram utilizados laços de repetição `while`, que mantêm a comunicação ativa enquanto os participantes não solicitam seu encerramento.
-
-O funcionamento ocorre de forma alternada: o cliente envia uma mensagem, o servidor recebe e digita uma resposta, que é enviada de volta ao cliente. Esse processo continua até que um dos participantes digite o comando `sair`.
-
-Durante a execução no Docker, foram realizadas trocas de mensagens entre os dois programas. O cliente enviou inicialmente "olá servidor", recebendo como resposta "olá cliente". Em seguida, enviou "Tudo funcionando?", recebendo a resposta "Sim, comunicação funcionando".
-
-Por fim, o cliente enviou o comando `sair`, que foi reconhecido pelo servidor. A conexão foi encerrada e ambos os programas finalizaram normalmente.
-
-Os resultados demonstraram a possibilidade de manter uma conexão TCP ativa para realizar múltiplas trocas de mensagens entre processos.
+Os resultados demonstraram o funcionamento da comunicação TCP/IP entre processos distintos no mesmo ambiente de execução.
 
 ### Comunicação entre tarefas em processos diferentes em computadores diferentes
 
 
-As implementações desenvolvidas utilizaram o endereço de loopback `127.0.0.1`, permitindo realizar os testes de comunicação entre cliente e servidor no mesmo ambiente de rede.
+Neste cenário, foi utilizada a comunicação por sockets TCP/IP entre dois contêineres Docker, simulando computadores distintos conectados por uma rede.
 
-Embora os sockets TCP também permitam estabelecer comunicação entre computadores diferentes, essa modalidade não foi testada nesta etapa da atividade.
+A implementação utiliza um Servidor Chat e um Cliente Chat, desenvolvidos em C#, que permitem a troca de mensagens entre processos independentes.
 
-Para realizar esse tipo de comunicação, seria necessário configurar o servidor para aceitar conexões por uma interface de rede acessível a outros computadores, além de utilizar o endereço IP correspondente no cliente e garantir a conectividade entre os ambientes.
+O Docker Compose foi utilizado para criar os contêineres e conectá-los por meio de uma rede virtual do tipo bridge.
 
+**Servidor Chat (`ServidorChat.cs`)**
+Trecho responsável por iniciar o servidor e aguardar a conexão do cliente:
+```csharp
+IPAddress enderecoIP = IPAddress.Parse(
+    Environment.GetEnvironmentVariable("SERVER_HOST") ?? "127.0.0.1"
+);
+
+int porta = 5000;
+
+TcpListener servidor = new TcpListener(enderecoIP, porta);
+
+try
+{
+    servidor.Start();
+
+    Console.WriteLine($"Servidor Chat a escutar em {enderecoIP}:{porta}");
+    Console.WriteLine("A aguardar ligação do cliente...");
+
+    TcpClient conexao = servidor.AcceptTcpClient();
+
+    Console.WriteLine($"Cliente conectado: {conexao.Client.RemoteEndPoint}");
+}
+```
+**Cliente Chat (`ClienteChat.cs`)**
+```csharp
+string ipServidor =
+    Environment.GetEnvironmentVariable("SERVER_HOST") ?? "127.0.0.1";
+
+int porta = 5000;
+
+try
+{
+    TcpClient cliente = new TcpClient(ipServidor, porta);
+
+    Console.WriteLine("Conectado ao Servidor Chat!");
+
+    using (NetworkStream stream = cliente.GetStream())
+    {
+        Console.Write("Cliente: ");
+        string? mensagem = Console.ReadLine();
+
+        if (!string.IsNullOrEmpty(mensagem))
+        {
+            byte[] dados = Encoding.UTF8.GetBytes(mensagem);
+            stream.Write(dados, 0, dados.Length);
+        }
+    }
+}
+```
+### Execução e resultados
+Os testes foram realizados no Docker Desktop, utilizando dois contêineres conectados à mesma rede virtual.
+
+Durante a execução, o Cliente Chat conseguiu estabelecer uma conexão com o Servidor Chat e enviar a mensagem Olá servidor, recebida corretamente pelo servidor.
+
+### Problemas e soluções
+
+1. Erro na inicialização dos programas pelo Docker Compose
+- Problema: o contêiner não conseguia executar corretamente a opção desejada do menu.
+- Causa: configuração incorreta do comando de inicialização no docker-compose.yml.
+- Solução: foi utilizado o entrypoint com dotnet run --no-build --, seguido do número 
+
+2. Falha na conexão entre cliente e servidor
+- Problema: o Cliente Chat apresentava o erro Connection refused.
+- Causa: o endereço 127.0.0.1 apontava para o próprio contêiner, e não para o servidor.
+- Solução: foram utilizadas variáveis de ambiente (SERVER_HOST) para configurar os endereços do servidor e do cliente.
+
+3. Dificuldade para encerrar contêineres Docker
+- Problema: alguns comandos de parada e remoção dos contêineres não respondiam.
+- Causa: o Docker Desktop apresentou problemas de resposta durante a execução.
+- Solução: o Docker Desktop foi reiniciado e os contêineres foram posteriormente encerrados utilizando docker compose down.
 ## Considerações finais 
 
 A atividade permitiu implementar e testar diferentes formas de comunicação entre tarefas utilizando a linguagem C# e o ambiente Docker.

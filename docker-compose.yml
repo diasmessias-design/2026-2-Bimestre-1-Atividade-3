@@ -1,0 +1,44 @@
+
+
+
+
+
+
+services:
+  servidor:
+    build: .
+    image: atividade3
+    stdin_open: true
+    tty: true
+    environment:
+      SERVER_HOST: "0.0.0.0"
+    entrypoint:
+      - dotnet
+      - run
+      - --no-build
+      - --
+      - "7"
+    networks:
+      - rede_atividade
+
+  cliente:
+    build: .
+    image: atividade3
+    stdin_open: true
+    tty: true
+    environment:
+      SERVER_HOST: "servidor"
+    entrypoint:
+      - dotnet
+      - run
+      - --no-build
+      - --
+      - "8"
+    depends_on:
+      - servidor
+    networks:
+      - rede_atividade
+
+networks:
+  rede_atividade:
+    driver: bridge

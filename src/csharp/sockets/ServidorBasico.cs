@@ -1,3 +1,4 @@
+
 using System;
 using System.Net;
 using System.Net.Sockets;
@@ -9,27 +10,37 @@ namespace AtividadeComunicação
     {
         public static void Principal()
         {
-            // Definir endereço IP e porta
-            IPAddress enderecoIP = IPAddress.Parse("127.0.0.1");
+            // Obter o endereço IP configurado no ambiente
+            // Se não existir, utilizar localhost
+            string ip = Environment.GetEnvironmentVariable("SERVER_HOST")
+                        ?? "127.0.0.1";
+
+            IPAddress enderecoIP = IPAddress.Parse(ip);
             int porta = 5000;
 
-            // Criar um TcpListener (equivalente ao socket servidor)
+            // Criar o servidor TCP
             TcpListener servidor = new TcpListener(enderecoIP, porta);
 
             try
             {
-                // Iniciar escuta por conexões (equivalente ao bind e listen)
+                // Iniciar a escuta por conexões
                 servidor.Start();
-                Console.WriteLine($"Servidor escutando em localhost:{porta}");
+                Console.WriteLine(
+                    $"Servidor escutando em {enderecoIP}:{porta}"
+                );
 
-                // Aguardar por uma conexão (equivalente ao accept)
+                // Aguardar conexão de um cliente
                 TcpClient conexao = servidor.AcceptTcpClient();
-                Console.WriteLine($"Conexão estabelecida com {conexao.Client.RemoteEndPoint}");
 
-                // Enviar mensagem
+                Console.WriteLine(
+                    $"Conexão estabelecida com {conexao.Client.RemoteEndPoint}"
+                );
+
+                // Preparar a mensagem
                 string mensagem = "Bem-vindo ao servidor!";
                 byte[] dados = Encoding.UTF8.GetBytes(mensagem);
 
+                // Enviar mensagem ao cliente
                 using (NetworkStream stream = conexao.GetStream())
                 {
                     stream.Write(dados, 0, dados.Length);
@@ -40,7 +51,9 @@ namespace AtividadeComunicação
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Erro no servidor: {ex.Message}");
+                Console.WriteLine(
+                    $"Erro no servidor: {ex.Message}"
+                );
             }
             finally
             {

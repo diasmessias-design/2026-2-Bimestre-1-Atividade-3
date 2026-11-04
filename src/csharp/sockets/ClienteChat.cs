@@ -8,7 +8,7 @@ namespace AtividadeComunicação
     {
         public static void Principal()
         {
-            string ipServidor = "127.0.0.1";
+            string ipServidor = Environment.GetEnvironmentVariable("SERVER_HOST") ?? "127.0.0.1";
             int porta = 5000;
 
             try

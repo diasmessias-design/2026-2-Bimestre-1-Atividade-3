@@ -9,7 +9,9 @@ namespace AtividadeComunicação
     {
         public static void Principal()
         {
-            IPAddress enderecoIP = IPAddress.Parse("127.0.0.1");
+            IPAddress enderecoIP = IPAddress.Parse(
+                 Environment.GetEnvironmentVariable("SERVER_HOST") ?? "127.0.0.1"
+                 );
             int porta = 5000;
 
             TcpListener servidor = new TcpListener(enderecoIP, porta);
@@ -17,7 +19,7 @@ namespace AtividadeComunicação
             try
             {
                 servidor.Start();
-                Console.WriteLine($"Servidor Chat a escutar em localhost:{porta}");
+                Console.WriteLine($"Servidor Chat a escutar em {enderecoIP}:{porta}");
                 Console.WriteLine("A aguardar ligação do cliente...");
 
                 TcpClient conexao = servidor.AcceptTcpClient();
