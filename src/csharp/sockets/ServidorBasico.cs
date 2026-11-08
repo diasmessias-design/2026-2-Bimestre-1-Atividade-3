@@ -1,4 +1,5 @@
 
+
 using System;
 using System.Net;
 using System.Net.Sockets;
@@ -10,56 +11,41 @@ namespace AtividadeComunicação
     {
         public static void Principal()
         {
-            // Obter o endereço IP configurado no ambiente
-            // Se não existir, utilizar localhost
-            string ip = Environment.GetEnvironmentVariable("SERVER_HOST")
-                        ?? "127.0.0.1";
-
-            IPAddress enderecoIP = IPAddress.Parse(ip);
+            string host = Environment.GetEnvironmentVariable("SERVER_HOST") ?? "127.0.0.1";
+            IPAddress enderecoIP = IPAddress.Parse(host);
             int porta = 5000;
 
-            // Criar o servidor TCP
             TcpListener servidor = new TcpListener(enderecoIP, porta);
 
             try
             {
-                // Iniciar a escuta por conexões
                 servidor.Start();
-                Console.WriteLine(
-                    $"Servidor escutando em {enderecoIP}:{porta}"
-                );
+                Console.WriteLine($"Servidor escutando em {enderecoIP}:{porta}");
 
-                // Aguardar conexão de um cliente
-                TcpClient conexao = servidor.AcceptTcpClient();
-
-                Console.WriteLine(
-                    $"Conexão estabelecida com {conexao.Client.RemoteEndPoint}"
-                );
-
-                // Preparar a mensagem
-                string mensagem = "Bem-vindo ao servidor!";
-                byte[] dados = Encoding.UTF8.GetBytes(mensagem);
-
-                // Enviar mensagem ao cliente
-                using (NetworkStream stream = conexao.GetStream())
+                using (TcpClient cliente = servidor.AcceptTcpClient())
                 {
-                    stream.Write(dados, 0, dados.Length);
+                    Console.WriteLine($"Cliente conectado: {cliente.Client.RemoteEndPoint}");
+
+                    using (NetworkStream stream = cliente.GetStream())
+                    {
+                        string mensagem = "Bem-vindo ao servidor!";
+                        byte[] dados = Encoding.UTF8.GetBytes(mensagem);
+
+                        stream.Write(dados, 0, dados.Length);
+
+                        Console.WriteLine($"Mensagem enviada: {mensagem}");
+                    }
                 }
 
-                // Fechar a conexão
-                conexao.Close();
+                Console.WriteLine("Servidor encerrado.");
             }
             catch (Exception ex)
             {
-                Console.WriteLine(
-                    $"Erro no servidor: {ex.Message}"
-                );
+                Console.WriteLine($"Erro no servidor: {ex.Message}");
             }
             finally
             {
-                // Encerrar o servidor
                 servidor.Stop();
-                Console.WriteLine("Servidor encerrado");
             }
         }
     }

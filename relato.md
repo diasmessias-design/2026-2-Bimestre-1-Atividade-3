@@ -118,8 +118,7 @@ namespace AtividadeComunicação
     {
         public static void Principal()
         {
-            // Obter o endereço IP configurado no ambiente
-            // Se não existir, utilizar localhost
+            
             string ip = Environment.GetEnvironmentVariable("SERVER_HOST")
                         ?? "127.0.0.1";
 
@@ -237,7 +236,7 @@ Durante a execução no Docker, foi possível observar que o servidor recebeu a 
 ### Execução e resultados
 Os testes foram realizados utilizando dois terminais, um para o servidor e outro para o cliente.
 
-![alt text](image-1.png)    ![alt text](image-2.png)
+![alt text](image-4.png)
 
 Os resultados demonstraram o funcionamento da comunicação TCP/IP entre processos distintos no mesmo ambiente de execução.
 
@@ -304,6 +303,8 @@ Os testes foram realizados no Docker Desktop, utilizando dois contêineres conec
 
 Durante a execução, o Cliente Chat conseguiu estabelecer uma conexão com o Servidor Chat e enviar a mensagem Olá servidor, recebida corretamente pelo servidor.
 
+![alt text](image-3.png)
+
 ### Problemas e soluções
 
 1. Erro na inicialização dos programas pelo Docker Compose
@@ -331,3 +332,7 @@ Na segunda parte, foram desenvolvidas implementações de comunicação entre pr
 A implementação do Chat também demonstrou como uma conexão pode ser mantida durante várias trocas de mensagens, permitindo uma interação entre cliente e servidor.
 
 Além dos conceitos de comunicação entre tarefas, a atividade contribuiu para o aprendizado sobre a utilização do Docker como ambiente de execução e sobre a organização de aplicações C# que utilizam recursos de rede.
+
+## Vídeo de execução dos códigos
+
+https://www.youtube.com/watch?v=JrqxPeQB4IA
