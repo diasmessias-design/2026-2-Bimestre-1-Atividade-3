@@ -20,7 +20,7 @@
 ## Grupos (min. 2 e máx. 3)
 | Linguagem  | Time      | Repositório | Data de apresentação |
 | ---------- | --------- | ----------- | -------------------- |
-| C#         | Álvaro Luiz Barbalho de Souza Filho<br>Paulo Cesar Moreira da Silva<br>Pedro Messias Dias Neto | [github](https://github.com/moreirasilva1-tech/2026-2-Bimestre-1-Atividade-3) | 06 |
+| C#         | Álvaro Luiz Barbalho de Souza Filho<br>Paulo Cesar Moreira da Silva<br>Pedro Messias Dias Neto | [github](https://github.com/diasmessias-design/2026-2-Bimestre-1-Atividade-3) | 06 |
 | C++        | Artur Lima Melo<br>Arthur Vinicius Barreto Demetrio<br>Caio Lucas Alves de Oliveira            | [github](https://github.com/ArturLimaMelo/2026-2-Bimestre-1-Atividade-3) | 09#07 - 04/11/2026 |
 | Clojure    | Geovanna Negreiros de Araújo<br>Haama Kethelen Souza Reis<br>Lucas Natanael de Andrade Mota    | [github](https://github.com/geovanna193/Atividade-3-S.O) | 03#06 - 04/11/2026 |
 | Elixir     | Daniel Araujo Azevedo<br>Fábio Hudson Gomes de Souza<br>Rafael Duarte da Silva de Brito        | [github](https://github.com/RafaelDuarteSilvaIFRN/2026-2-Bimestre-1-Atividade-3) | 07#02 - 04/11/2026 |
